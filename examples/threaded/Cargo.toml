@@ -1,7 +1,7 @@
 [package]
-name = "hello-rs"
+name = "rustfun-rs"
 version = "0.1.0"
-authors = ["David Coles <coles.david@gmail.com>"]
+authors = ["David Pollak <feeder.of.the.bears@gmail.com>"]
 edition = "2018"
 
 [lib]
