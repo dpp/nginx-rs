@@ -6,14 +6,14 @@ use nginx_rs::{
     build_worker, http_request_handler, ngx_log_debug_http, ngx_modules, ngx_null_command,
     ngx_string,
 };
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::sync::{Arc, Mutex};
-use tokio::time::sleep;
-
 use reqwest::get;
 use std::borrow::Cow;
 use std::os::raw::{c_char, c_void};
 use std::ptr;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
+use tokio::time::sleep;
 
 #[no_mangle]
 static mut ngx_http_hello_world_commands: [ngx_command_t; 3] = [
@@ -253,7 +253,7 @@ http_request_handler!(
                     }
 
                     // a nice async sleep
-                    sleep(std::time::Duration::from_millis(22)).await;
+                    sleep(Duration::from_millis(22)).await;
                 }),
             );
 
@@ -290,13 +290,16 @@ http_request_handler!(
         // Create body
         let user_agent = request.user_agent();
         let body = format!(
-            "Hello, {}! Info fetched {}\n",
+            "Hello, {}!
+            \nCount {}
+            \nInfo fetched {}\n",
             if text.is_empty() {
                 user_agent.to_string_lossy()
             } else {
                 Cow::from(text)
             },
-            extra_str
+            info.get_count(),
+            extra_str,
         );
 
         // Send header

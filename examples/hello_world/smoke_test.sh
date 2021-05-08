@@ -26,6 +26,6 @@ fi
 
 echo
 echo
-echo "Nginx is running. Point your browser to your dev instance and check it out. Control-C to stop"
+echo "Nginx is running. Point your browser to http://localhost:8000 and check it out. Control-C to stop"
 
 (cd "$NGINX_DIR" ; r/sbin/nginx)
