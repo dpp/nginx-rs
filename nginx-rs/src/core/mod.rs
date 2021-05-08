@@ -10,19 +10,23 @@ pub use string::*;
 
 #[macro_export]
 macro_rules! ngx_string {
-    ($x:expr) => {
-        {
-            // const asserts are not yet supported (see rust-lang/rust#51999)
-            &[()][1 - (($x[$x.len() - 1] == b'\0') as usize)]; // must have nul-byte
-            ngx_str_t { len: $x.len() - 1, data: $x.as_ptr() as *mut u8 }
+    ($x:expr) => {{
+        // const asserts are not yet supported (see rust-lang/rust#51999)
+        &[()][1 - (($x[$x.len() - 1] == b'\0') as usize)]; // must have nul-byte
+        ngx_str_t {
+            len: ($x.len() - 1) as u64,
+            data: $x.as_ptr() as *mut u8,
         }
-    };
+    }};
 }
 
 #[macro_export]
 macro_rules! ngx_null_string {
     () => {
-        ngx_str_t { len: 0, data: ::std::ptr::null_mut() }
+        ngx_str_t {
+            len: 0,
+            data: ::std::ptr::null_mut(),
+        }
     };
 }
 

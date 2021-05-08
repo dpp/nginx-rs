@@ -9,6 +9,23 @@ impl Status {
     }
 }
 
+impl From<i32> for Status {
+    fn from(i: i32) -> Status {
+        Status(i as ngx_int_t)
+    }
+}
+
+impl From<u32> for Status {
+    fn from(i: u32) -> Status {
+        Status(i as ngx_int_t)
+    }
+}
+
+impl From<ngx_int_t> for Status {
+    fn from(i: ngx_int_t) -> Status {
+        Status(i)
+    }
+}
 impl Into<ngx_int_t> for Status {
     fn into(self) -> ngx_int_t {
         self.0

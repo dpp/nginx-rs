@@ -1,7 +1,7 @@
 [package]
 name = "hello-rs"
 version = "0.1.0"
-authors = ["David Coles <coles.david@gmail.com>"]
+authors = ["David Coles <coles.david@gmail.com>", "David Pollak <feeder.of.the.bears@gmail.com>"]
 edition = "2018"
 
 [lib]
@@ -9,6 +9,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 nginx-rs = { path = "../../nginx-rs" }
-
+async-trait = "~0.1"
+reqwest = "~0.11"
+tokio = { version = "~1", features = ["full"] }
 [profile.release]
 debug = true

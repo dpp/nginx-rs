@@ -1,12 +1,15 @@
 [package]
 name = "nginx-rs"
 version = "0.1.0"
-authors = ["David Coles <coles.david@gmail.com>"]
+authors = ["David Coles <coles.david@gmail.com>", "David Pollak <feeder.of.the.bears@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
+# memoffset = "~0.6"
+lazy_static = "~1.4"
+tokio = { version = "~1", features = ["full"] }
+async-trait = "~0.1"
 [build-dependencies]
-bindgen = "0.51"
+bindgen = "~0.58"

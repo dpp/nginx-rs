@@ -1,8 +1,8 @@
 use crate::bindings::*;
 use crate::core::*;
 
-use std::os::raw::{c_void, c_char};
 use core::ptr;
+use std::os::raw::{c_char, c_void};
 
 pub trait Merge {
     fn merge(&mut self, prev: &Self);
@@ -39,7 +39,11 @@ pub trait HTTPModule {
         pool.allocate::<Self::SrvConf>(Default::default()) as *mut c_void
     }
 
-    unsafe extern "C" fn merge_srv_conf(_cf: *mut ngx_conf_t, prev: *mut c_void, conf: *mut c_void) -> *mut c_char {
+    unsafe extern "C" fn merge_srv_conf(
+        _cf: *mut ngx_conf_t,
+        prev: *mut c_void,
+        conf: *mut c_void,
+    ) -> *mut c_char {
         let prev = &mut *(prev as *mut Self::SrvConf);
         let conf = &mut *(conf as *mut Self::SrvConf);
         conf.merge(prev);
@@ -51,7 +55,11 @@ pub trait HTTPModule {
         pool.allocate::<Self::LocConf>(Default::default()) as *mut c_void
     }
 
-    unsafe extern "C" fn merge_loc_conf(_cf: *mut ngx_conf_t, prev: *mut c_void, conf: *mut c_void) -> *mut c_char {
+    unsafe extern "C" fn merge_loc_conf(
+        _cf: *mut ngx_conf_t,
+        prev: *mut c_void,
+        conf: *mut c_void,
+    ) -> *mut c_char {
         let prev = &mut *(prev as *mut Self::LocConf);
         let conf = &mut *(conf as *mut Self::LocConf);
         conf.merge(prev);

@@ -1,23 +1,29 @@
 use crate::bindings::*;
 
+use std::borrow::Cow;
 use std::marker::PhantomData;
 use std::slice;
 use std::str::{self, Utf8Error};
-use std::borrow::Cow;
 
 pub struct NgxStr<'a>(ngx_str_t, PhantomData<&'a [u8]>);
 
 impl<'a> NgxStr<'a> {
     pub fn new(str: &str) -> NgxStr {
-        NgxStr(ngx_str_t { len: str.len(), data: str.as_ptr() as *mut u_char }, PhantomData)
+        NgxStr(
+            ngx_str_t {
+                len: str.len() as u64,
+                data: str.as_ptr() as *mut u_char,
+            },
+            PhantomData,
+        )
     }
 
     pub unsafe fn from_ngx_str(str: ngx_str_t) -> NgxStr<'a> {
         NgxStr(str, PhantomData)
     }
 
-    pub fn as_bytes(&self) -> &[u8]  {
-        unsafe { slice::from_raw_parts(self.0.data, self.0.len) }
+    pub fn as_bytes(&self) -> &[u8] {
+        unsafe { slice::from_raw_parts(self.0.data, self.0.len as usize) }
     }
 
     pub fn to_str(&self) -> Result<&str, Utf8Error> {
@@ -41,6 +47,12 @@ impl AsRef<[u8]> for NgxStr<'_> {
 
 impl Default for NgxStr<'_> {
     fn default() -> Self {
-        NgxStr(ngx_str_t { len: 0, data: b"".as_ptr() as *mut u_char }, PhantomData)
+        NgxStr(
+            ngx_str_t {
+                len: 0,
+                data: b"".as_ptr() as *mut u_char,
+            },
+            PhantomData,
+        )
     }
 }

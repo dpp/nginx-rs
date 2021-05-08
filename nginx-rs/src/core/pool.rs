@@ -1,10 +1,15 @@
 use crate::bindings::*;
-use crate::core::buffer::{TemporaryBuffer, MemoryBuffer, Buffer};
+use crate::core::buffer::{Buffer, MemoryBuffer, TemporaryBuffer};
 
-use std::{ptr, mem};
 use std::os::raw::c_void;
+use std::{mem, ptr};
 
+#[derive(Clone, Copy, Debug)]
 pub struct Pool(*mut ngx_pool_t);
+
+unsafe impl Send for Pool {}
+
+unsafe impl Sync for Pool {}
 
 impl Pool {
     pub unsafe fn from_ngx_pool(pool: *mut ngx_pool_t) -> Pool {
@@ -12,7 +17,7 @@ impl Pool {
         Pool(pool)
     }
 
-    pub fn create_buffer(&mut self, size: usize) -> Option<TemporaryBuffer> {
+    pub fn create_buffer(&mut self, size: u64) -> Option<TemporaryBuffer> {
         let buf = unsafe { ngx_create_temp_buf(self.0, size) };
         if buf.is_null() {
             return None;
@@ -21,9 +26,8 @@ impl Pool {
         Some(TemporaryBuffer::from_ngx_buf(buf))
     }
 
-    pub fn create_buffer_from_str(&mut self, str: &str) -> Option<TemporaryBuffer>
-    {
-        let mut buffer = self.create_buffer(str.len())?;
+    pub fn create_buffer_from_str(&mut self, str: &str) -> Option<TemporaryBuffer> {
+        let mut buffer = self.create_buffer(str.len() as u64)?;
         unsafe {
             let mut buf = buffer.as_ngx_buf_mut();
             ptr::copy_nonoverlapping(str.as_ptr(), (*buf).pos, str.len());
@@ -64,25 +68,25 @@ impl Pool {
         Ok(())
     }
 
-    pub fn alloc(&mut self, size: usize) -> *mut c_void {
+    pub fn alloc(&mut self, size: u64) -> *mut c_void {
         unsafe { ngx_palloc(self.0, size) }
     }
 
     pub fn alloc_type<T: Copy>(&mut self) -> *mut T {
-        self.alloc(mem::size_of::<T>()) as *mut T
+        self.alloc(mem::size_of::<T>() as u64) as *mut T
     }
 
-    pub fn calloc(&mut self, size: usize) -> *mut c_void {
+    pub fn calloc(&mut self, size: u64) -> *mut c_void {
         unsafe { ngx_pcalloc(self.0, size) }
     }
 
     pub fn calloc_type<T: Copy>(&mut self) -> *mut T {
-        self.calloc(mem::size_of::<T>()) as *mut T
+        self.calloc(mem::size_of::<T>() as u64) as *mut T
     }
 
     pub fn allocate<T>(&mut self, value: T) -> *mut T {
         unsafe {
-            let p = self.alloc(mem::size_of::<T>()) as *mut T;
+            let p = self.alloc(mem::size_of::<T>() as u64) as *mut T;
             ptr::write(p, value);
             if self.add_cleanup_for_value(p).is_err() {
                 ptr::drop_in_place(p);
